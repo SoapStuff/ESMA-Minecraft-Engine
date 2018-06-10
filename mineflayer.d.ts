@@ -210,8 +210,8 @@ declare class MineflayerBot extends EventEmitter {
 
     updateHeldItem(): void
 
-    on(event: "chat", callback: (username, message, translate, jsonMsg, matches) => void);
-    on(event: "whisper", callback: (username, message, translate, jsonMsg, matches) => void)
+    on(event: "chat", callback: (username: string, message: string, translate, jsonMsg, matches) => void);
+    on(event: "whisper", callback: (username: string, message: string, translate, jsonMsg, matches) => void)
     on(event: "actionBar", callback: (jsonMsg) => void)
     on(event: "message", callback: (jsonMsg) => void)
     on(event: "login", callback: () => void)
