@@ -1,8 +1,10 @@
 import EventEmitter = NodeJS.EventEmitter;
 
 declare type MineflayerBotOptions = { host?: string, port?: number, username: string, password?: string }
-declare function createBot(options: MineflayerBotOptions) : MineflayerBot;
-
+declare type createBot = (options: MineflayerBotOptions) => MineflayerBot;
+declare type mineflayer = {
+    createBot: createBot;
+}
 declare class Vec3 {
     x: number;
     y: number;

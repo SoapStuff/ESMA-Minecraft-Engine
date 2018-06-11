@@ -9,6 +9,33 @@ export function welcome(bot: Bot) {
     });
 }
 
+export function stopwatch(bot: Bot, from: string, command: string): string {
+    let stopwatch = bot.getLib("chat_stopwatch"); //Initialize if not ready
+    if (!stopwatch) {
+        stopwatch = {count_ms: 0, timer: null};
+        bot.setLib("chat_stopwatch", stopwatch);
+    }
+    if (command === "reset") {
+        let timer = stopwatch.timer;
+        if (timer) clearInterval(timer);
+        stopwatch.timer = null;
+        stopwatch.count_ms = 0;
+    } else if (command === "start") {
+        if (stopwatch.timer) return "Stopwatch already started.";
+        stopwatch.timer = setInterval(() => stopwatch.count_ms += 10, 10);
+    } else if (command === "stop") {
+        let timer = stopwatch.timer;
+        if (timer) clearInterval(timer);
+
+        bot.chat(from, (stopwatch.count_ms / 1000).toString());
+        stopwatch.timer = null;
+    } else if (command === "get") {
+        bot.chat(from, (stopwatch.count_ms / 1000).toString());
+    } else {
+        return "usage: stopwatch <reset|start|stop|get>";
+    }
+}
+
 function countDown(bot: Bot, from: string, amount: number, command: string): void {
     let target = 0;
     let timer: Timer;

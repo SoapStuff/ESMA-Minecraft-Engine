@@ -1,6 +1,6 @@
 import * as mineflayer from "mineflayer";
 import * as chat from "./libs/chat";
-
+import * as connection from "./libs/connection";
 /**
  * Represents a command that can be executed by the bot.
  * The first argument is the bot that executes a command.
@@ -9,11 +9,20 @@ import * as chat from "./libs/chat";
  * It should return a string on invalid input. Otherwise it should return a falsy value (null, false, undefined, etc.).
  */
 declare type CommandFunc = (bot: Bot, from: string | null, ...args: string[]) => string;
-declare type BotOptions = { bot_name?: string, mine_flayer: MineflayerBotOptions, owners?: string[], logging?: boolean }
+
+export interface BotOptions {
+    bot_name?: string
+    mineflayer_options: MineflayerBotOptions
+    owners?: string[]
+    logging?: boolean
+}
+
 /**
  * @see {@link Bot#libs}
  */
-declare type BotPlugins = { [plugin_name: string]: any };
+export interface BotPlugins {
+    [plugin_name: string]: any
+}
 
 let bots: { [name: string]: Bot } = {};
 let commands: { [i: string]: CommandFunc } = {};
@@ -89,12 +98,12 @@ export class Bot {
     constructor(options: BotOptions, mineflayer_bot?: MineflayerBot) {
 
         //Parse the options.
-        this._bot_name = options.bot_name ? options.bot_name : options.mine_flayer.username;
+        this._bot_name = options.bot_name ? options.bot_name : options.mineflayer_options.username;
         this._logging = !!options.logging;
         this._owners = options.owners ? options.owners : [global_settings.default_owner];
 
 
-        this._mineflayer_bot = mineflayer_bot ? mineflayer_bot : mineflayer.createBot(options.mine_flayer);
+        this._mineflayer_bot = mineflayer_bot ? mineflayer_bot : mineflayer.createBot(options.mineflayer_options);
         this._libs = {};
 
         this.mineflayer_bot.on('chat', (username: string, message: string) => this.onChat(username, message, false));
@@ -190,16 +199,26 @@ export class Bot {
 
     /**
      * Sets the value of the plugin.
+     * This can only be set once.
      * @param {string} lib The name of the library.
      * @param value The value object.
      * @see {@link libs) for more information.
      */
     setLib(lib: string, value: any): void {
-        if (!this.libs) {
+        if (!this.libs[lib]) {
             this.libs[lib] = value;
         } else {
             console.error('Plugin "' + lib + '" already in use!');
         }
+    }
+
+    /**
+     * Gets the value of the plugin.
+     * @param {string} lib The name of the library.
+     * @see {@link libs) for more information.
+     */
+    getLib(lib: string) {
+        return this.libs[lib];
     }
 
     /**
@@ -270,5 +289,7 @@ export function addDefaults() {
     addCommand("say", chat.say);
     addCommand("whisper", chat.whisper);
     addCommand("count", chat.count);
+    addCommand("stopwatch", chat.stopwatch);
+    addCommand("disconnect", connection.disconnect);
     addListener(chat.welcome);
 }
