@@ -3,7 +3,8 @@
     "module": "commonjs",
     "target": "es6",
     "sourceMap": true,
-    "outDir": "./build",
+    "outDir": "./out/build",
+    "declarationDir": "./out/@types",
     "declaration": true
   },
   "exclude": [

@@ -1,20 +1,21 @@
-import * as bot_manager from "./bot_manager";
 import * as read from "readline";
+import {esma} from "./plugins/esma";
+import {createBot} from "mineflayer";
+import welcome from "./plugins/welcome";
+import {ESMABot} from "./classes/ESMABot";
 
-bot_manager.addDefaults();
-bot_manager.addBot({
-    bot_name: "Jaques",
-    mineflayer_options: {
-        host: 'localhost',  // optional
-        port: 25565,        // optional
-        username: "Jaques", // email and password are required only for
-    }
+let bot: ESMABot = createBot({
+    host: 'localhost',  // optional
+    port: 25565,        // optional
+    username: "ESMA", // email and password are required only for
 });
 
-let bot = bot_manager.getBot("Jaques");
+bot.loadPlugin(esma({logging: true, owners: ["EternalSoap"]}));
+bot.loadPlugin(welcome);
+
 let rl = read.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
 
-rl.on('line', (line: string) => bot.doCommand(null, line));
+rl.on('line', (line: string) => bot.esma.doCommand(null, line));
