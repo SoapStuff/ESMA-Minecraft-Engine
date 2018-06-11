@@ -4,9 +4,9 @@ import * as read from "readline";
 bot_manager.addDefaults();
 bot_manager.addBot({
     bot_name: "Jaques",
-    create: {
-        host: 'localhost', // optional
-        port: 25565,       // optional
+    mine_flayer: {
+        host: 'localhost',  // optional
+        port: 25565,        // optional
         username: "Jaques", // email and password are required only for
     }
 });

@@ -9,8 +9,7 @@ import * as chat from "./libs/chat";
  * It should return a string on invalid input. Otherwise it should return a falsy value (null, false, undefined, etc.).
  */
 declare type CommandFunc = (bot: Bot, from: string | null, ...args: string[]) => string;
-declare type MineflayerBotOptions = { host?: string, port?: number, username: string, password?: string }
-declare type BotOptions = { bot_name?: string, create: MineflayerBotOptions, owners?: string[], logging?: boolean }
+declare type BotOptions = { bot_name?: string, mine_flayer: MineflayerBotOptions, owners?: string[], logging?: boolean }
 /**
  * @see {@link Bot#libs}
  */
@@ -23,7 +22,6 @@ let listeners: ((Bot) => void)[] = [];
 export var global_settings = {
     default_owner: "EternalSoap",
 };
-
 
 /**
  * The class that contains the MinecraftBot instance of mineflayer,
@@ -84,18 +82,19 @@ export class Bot {
     /**
      * @constructor
      * @param {BotOptions} options
+     * @param {MineflayerBot} mineflayer_bot The mineflayer bot,
      * @see {@link Bot}
      * @see {@link http://mineflayer.prismarine.js.org/#/}
      */
-    constructor(options: BotOptions) {
+    constructor(options: BotOptions, mineflayer_bot?: MineflayerBot) {
 
         //Parse the options.
-        this._bot_name = options.bot_name ? options.bot_name : options.create.username;
+        this._bot_name = options.bot_name ? options.bot_name : options.mine_flayer.username;
         this._logging = !!options.logging;
         this._owners = options.owners ? options.owners : [global_settings.default_owner];
 
 
-        this._mineflayer_bot = mineflayer.createBot(options.create);
+        this._mineflayer_bot = mineflayer_bot ? mineflayer_bot : mineflayer.createBot(options.mine_flayer);
         this._libs = {};
 
         this.mineflayer_bot.on('chat', (username: string, message: string) => this.onChat(username, message, false));
@@ -153,7 +152,7 @@ export class Bot {
 
         //This split it into an string array split on spaces.
         let args = command_string.match(/(?:[^\s"]+|"[^"]*")+/g);
-        console.log(args ? args : "[]");
+        // console.log(args ? args : "[]");
 
         if (!args || !args[0]) {
             this.chat(username, "What would you like me to do " + (username ? username : "master") + "?");
@@ -270,5 +269,6 @@ export function addListener(func: (bot: Bot) => void) {
 export function addDefaults() {
     addCommand("say", chat.say);
     addCommand("whisper", chat.whisper);
+    addCommand("count", chat.count);
     addListener(chat.welcome);
 }
