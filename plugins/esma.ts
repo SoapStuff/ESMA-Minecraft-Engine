@@ -9,7 +9,7 @@ import {CommandFunc} from "../classes/CommandFunc";
  * The ESMA plugin for handling commands.
  */
 export class ESMA {
-    private readonly commands: { [index: string]: CommandFunc };
+    private readonly commands: { [index: string]: { func: CommandFunc, help: string } };
     private readonly logging: boolean;
     private readonly owners: string[];
     private readonly mineflayer_bot: MineflayerBot;
@@ -24,6 +24,8 @@ export class ESMA {
         this.owners = options.owners;
         this.logging = !!options.logging;
         this.commands = {};
+        this.registerCommand("help", this.help, "Displays the help of a command or displays the list. \n " +
+            "usage: help [command]");
     }
 
     /**
@@ -61,7 +63,7 @@ export class ESMA {
             func_args[0] = this.mineflayer_bot;
             func_args.splice(1, 0, username);
             try {
-                let result: string | boolean = this.commands[cmd].apply(null, func_args);
+                let result: string | boolean = this.commands[cmd].func.apply(this, func_args);
                 if (result && typeof result === "string") {
                     this.chat(username, result, whisper);
                 }
@@ -78,10 +80,11 @@ export class ESMA {
      * Adds a new command to esma.
      * @param {string} command
      * @param {CommandFunc} func
+     * @param {string} help
      */
-    registerCommand(command: string, func: CommandFunc) {
+    registerCommand(command: string, func: CommandFunc, help: string) {
         if (!this.commands[command]) {
-            this.commands[command] = func;
+            this.commands[command] = {func: func, help: help};
         } else {
             console.warn("Duplicate command deceleration: " + command + "-" + func.toString());
         }
@@ -136,6 +139,13 @@ export class ESMA {
     private isCommand(message: string): boolean {
         return message.lastIndexOf("!" + this.mineflayer_bot.username, 0) === 0;
     }
+
+    private help(bot: MineflayerBot, from: string, command: string): string {
+        if (command && this.commands[command]) {
+            bot.esma.chat(from, this.commands[command].help);
+        }
+        return;
+    }
 }
 
 /**
@@ -149,8 +159,8 @@ export function esma(options: ESMAOptions): (bot: MineflayerBot, option: Minefla
         bot.esma = new ESMA(bot, options);
         bot.on('chat', (username: string, message: string) => bot.esma.onChat(username, message, false));
         bot.on('whisper', (username: string, message: string) => bot.esma.onChat(username, message, true));
-        bot.esma.registerCommand("say", chat.say);
-        bot.esma.registerCommand("whisper", chat.whisper);
-        bot.esma.registerCommand("count", chat.count);
+        bot.esma.registerCommand("say", chat.say, "Let the bot talk \n usage: say <message>");
+        bot.esma.registerCommand("whisper", chat.whisper, "Let the bot whisper a message \n usage: whisper <player> <message>");
+        bot.esma.registerCommand("count", chat.count, "Let the bot count and optionally execute a command \n usage: count <amount> [up|down] ");
     }
 }

@@ -1,4 +1,4 @@
-export function getCommand(array: IArguments | string[], index: number): string {
+export function joinArrayFrom(array: IArguments | string[], index: number): string {
     let args = [];
 
     for (let i = index; i < array.length; i++) {

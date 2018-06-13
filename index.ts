@@ -1,21 +1,35 @@
 import * as read from "readline";
 import {esma} from "./plugins/esma";
-import {createBot} from "mineflayer";
+import {createBot, MineflayerBotOptions} from "mineflayer";
 import welcome from "./plugins/welcome";
 import {ESMABot} from "./classes/ESMABot";
+import {stripmine} from "./plugins/stripminer";
 
-let bot: ESMABot = createBot({
-    host: 'localhost',  // optional
-    port: 25565,        // optional
-    username: "ESMA", // email and password are required only for
-});
+let bot: ESMABot;
 
-bot.loadPlugin(esma({logging: true, owners: ["EternalSoap"]}));
-bot.loadPlugin(welcome);
+export function init(options: MineflayerBotOptions, useTerminal: boolean = false) {
+    if (useTerminal) {
+        let rl = read.createInterface({input: process.stdin, output: process.stdout,});
+        rl.on('line', (line: string) => bot.esma.doCommand(null, line));
+    }
+    bot = createBot(options);
+}
 
-let rl = read.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
+export function loadPlugins() {
+    bot.loadPlugin(welcome);
+    bot.loadPlugin(stripmine);
+}
 
-rl.on('line', (line: string) => bot.esma.doCommand(null, line));
+export function loadCommands(logging: boolean, owners: string[]) {
+    bot.loadPlugin(esma({logging: true, owners: owners}));
+}
+
+if (process.argv.indexOf("--load-ESMA-defaults")) {
+    init({
+        host: 'localhost',  // optional
+        port: 25565,        // optional
+        username: "ESMA", // email and password are required only for
+    });
+    loadPlugins();
+    loadCommands(true, ["EternalSoap"]);
+}

@@ -1,5 +1,5 @@
 import {ESMABot} from "../../classes/ESMABot";
-import {getCommand} from "../util";
+import {joinArrayFrom} from "../util";
 import Timer = NodeJS.Timer;
 
 function countDown(bot: ESMABot, from: string, amount: number, command: string): void {
@@ -38,7 +38,7 @@ function countUp(bot: ESMABot, from: string, target: number, command: string): v
 
 export function count(bot: ESMABot, from: string, _amount: string, _direction: string): string {
     let amount = parseInt(_amount);
-    let command = getCommand(arguments, _direction === "up" || _direction === "down" ? 4 : 3);
+    let command = joinArrayFrom(arguments, _direction === "up" || _direction === "down" ? 4 : 3);
     if (!command) command = "say GO!";
 
     if (isNaN(amount)) return 'usage: count <amount : number> ["up" | "down"] [command]';

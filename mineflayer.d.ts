@@ -1,19 +1,39 @@
 import EventEmitter = NodeJS.EventEmitter;
+import {Vec3} from "./vec3";
 
-declare type MineflayerBotOptions = { host?: string, port?: number, username: string, password?: string }
-declare type createBot = (options: MineflayerBotOptions) => MineflayerBot;
-declare type mineflayer = {
+export declare type MineflayerBotOptions = { host?: string, port?: number, username: string, password?: string }
+export declare type createBot = (options: MineflayerBotOptions) => MineflayerBot;
+export declare type mineflayer = {
     createBot: createBot;
 }
-declare class Vec3 {
-    x: number;
-    y: number;
-    z: number;
+
+export declare class Location {
+    constructor(pos: Vec3)
 }
 
-declare type Vec3Arg = [number, number, number] | Vec3;
+export declare class Painting {
 
-declare class BotGame {
+}
+
+export declare class Chest {
+
+}
+
+export declare class Dispenser {
+
+}
+
+export declare class EnchantmentTable {
+
+}
+
+export declare class ScoreBoard {
+
+}
+
+export declare type Vec3Arg = [number, number, number] | Vec3;
+
+declare interface BotGame {
 
     levelType;
     dimension;
@@ -24,7 +44,7 @@ declare class BotGame {
     maxPlayers: number;
 }
 
-declare class BotSettings {
+declare interface BotSettings {
 
     chat: any;
     colorsEnabled: boolean;
@@ -33,13 +53,13 @@ declare class BotSettings {
     showCape: any;
 }
 
-declare class BotExperience {
+declare interface BotExperience {
     level: number;
     points: number;
     progress: number;
 }
 
-declare class BotTime {
+declare interface BotTime {
     day: number;
     age: number;
 }
@@ -277,7 +297,7 @@ declare class MineflayerBot extends EventEmitter {
 
 }
 
-declare class BotCreative {
+declare interface BotCreative {
     setInventorySlot(slot, item)
 
     flyTo(destination, cb?)
