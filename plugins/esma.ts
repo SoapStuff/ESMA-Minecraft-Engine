@@ -3,7 +3,7 @@ import * as chat from "./commands/chat";
 import {MineflayerBot, MineflayerBotOptions} from "mineflayer";
 import {ESMABot} from "../classes/ESMABot";
 import {ESMAOptions} from "../classes/ESMAOptions";
-import {CommandFunc} from "../classes/CommandFunc";
+import {CommandFunc, CommandInfo} from "../classes/CommandFunc";
 import {getSubArray, joinArrayFrom} from "./util";
 
 export class CommandItem {
@@ -12,22 +12,18 @@ export class CommandItem {
         return this._func;
     }
 
-    get help() {
-        return this._help;
+    get helpMessage() {
+        return this._helpMessage;
     }
 
     private readonly _command: string;
     private readonly _func: CommandFunc;
-    private readonly _help: string;
+    private readonly _helpMessage: string;
 
     constructor(command: string, func: CommandFunc, help: string) {
         this._command = command;
         this._func = func;
-        this._help = help;
-    }
-
-    toJSON(): string {
-        return this._command + " : " + this.help;
+        this._helpMessage = help;
     }
 }
 
@@ -35,7 +31,6 @@ export class CommandMap {
     [index: string]: CommandItem | CommandMap
 }
 
-// declare type CommandMap = { [index: string]: { func: CommandFunc, help: string } | CommandMap };
 
 /**
  * The ESMA plugin for handling commands.
@@ -67,6 +62,8 @@ export class ESMA {
      * @param {boolean} [whisper] whether the command was whispered or not.
      */
     interpCommandString(username: string, command_string: string, whisper: boolean = false): void {
+        let date = new Date();
+
         let bot = this.mineflayer_bot;
         if (!bot) return console.log("Bot not initialized");
 
@@ -86,34 +83,35 @@ export class ESMA {
             }
         }
 
-        this.interpCommand(username, args, whisper, this.commands);
+        let info = {from: username, whispered: whisper, date: date};
+        this.interpCommand(info, args, whisper, this.commands);
     }
 
     /**
-     * @param {string} username
+     * @param {CommandInfo} info
      * @param {string[]} args
      * @param {boolean} whisper
      * @param {CommandMap} commands
      */
-    private interpCommand(username: string, args: string[], whisper: boolean, commands: CommandMap) {
+    private interpCommand(info: CommandInfo, args: string[], whisper: boolean, commands: CommandMap) {
         let bot = this.mineflayer_bot;
         if (!bot) return;
 
         if (args.length < 1) {
-            this.chat(username, "No (sub) command specified");
+            this.chat(info.from, "No (sub) command specified", info.whispered);
         }
 
         let command = commands[args[0]];
         //Work around for the string array
-        let func_args: (string | MineflayerBot)[] = args;
+        let func_args: (string | MineflayerBot | CommandInfo)[] = args;
 
         if (command && command instanceof CommandItem) {
             func_args[0] = this.mineflayer_bot;
-            func_args.splice(1, 0, username);
+            func_args.splice(1, 0, info);
             try {
                 let result: string | boolean = command.func.apply(this, func_args);
                 if (result && typeof result === "string") {
-                    this.chat(username, result, whisper);
+                    this.chat(info.from, result, whisper);
                 }
             } catch (e) {
                 console.log(e);
@@ -121,9 +119,9 @@ export class ESMA {
             }
         } else if (command && command instanceof CommandMap) {
             func_args.splice(0, 1);
-            this.interpCommand(username, func_args, whisper, command);
+            this.interpCommand(info, func_args, whisper, command);
         } else {
-            this.chat(username, "I don't know what '" + args[0] + "' means.", whisper);
+            this.chat(info.from, "I don't know what '" + args[0] + "' means.", whisper);
         }
     }
 
@@ -131,18 +129,18 @@ export class ESMA {
      * Adds a new command to esma.
      * @param {string} command
      * @param {CommandFunc} func
-     * @param {string} help
+     * @param {string} helpMessage
      * @param {CommandMap} [commands] the current position in the command tree.
      */
-    registerCommand(command: string, func: CommandFunc, help: string, commands: CommandMap = this.commands) {
+    registerCommand(command: string, func: CommandFunc, helpMessage: string, commands: CommandMap = this.commands) {
         let cmds = command.split(".");
         if (cmds.length > 1) {
             if (!commands[cmds[0]]) commands[cmds[0]] = new CommandMap();
-            this.registerCommand(joinArrayFrom(cmds, 1), func, help, <CommandMap> commands[cmds[0]]);
+            this.registerCommand(joinArrayFrom(cmds, 1), func, helpMessage, <CommandMap> commands[cmds[0]]);
             return;
         }
         if (!commands[command]) {
-            commands[command] = new CommandItem(command, func, help);
+            commands[command] = new CommandItem(command, func, helpMessage);
         } else {
             console.warn("Duplicate command deceleration: " + command + "-" + func.toString());
         }
@@ -197,25 +195,12 @@ export class ESMA {
         return message.lastIndexOf("!" + this.mineflayer_bot.username, 0) === 0;
     }
 
-    private help(bot: MineflayerBot, from: string, command: string): string {
+    private help(bot: MineflayerBot, info: CommandInfo, command: string): string {
         if (!command) return "usage: help <command> <subcommand> ....";
-        return this.helpRec(from, getSubArray(arguments, 2));
-        /*
-let cmds = command.split(".");
-if (cmds.length > 1) {
-    if (!commands[cmds[0]]) commands[cmds[0]] = new CommandMap();
-    this.registerCommand(joinArrayFrom(cmds, 1), func, help, <CommandMap> commands[cmds[0]]);
-    return;
-}
-if (!commands[command]) {
-    commands[command] = new CommandItem(command, func, help);
-} else {
-    console.warn("Duplicate command deceleration: " + command + "-" + func.toString());
-}
- */
+        return this.helpRec(info, getSubArray(arguments, 2));
     }
 
-    private helpRec(from: string, command: string[], commands: CommandMap = this.commands) {
+    private helpRec(info: CommandInfo, command: string[], commands: CommandMap = this.commands) {
         if (command.length < 1) return "Could not find command";
         let cmd = commands[command[0]];
         if (!cmd) return "Could not find command: " + command[0];
@@ -223,13 +208,13 @@ if (!commands[command]) {
         if (command.length === 1) {
             if (cmd instanceof CommandMap) {
                 let values = Object.keys(cmd);
-                this.chat(from, "Sub commands: [" + values.toString() + "]");
+                this.chat(info.from, "Sub commands: [" + values.toString() + "]");
             } else {
-                this.chat(from, cmd.help);
+                this.chat(info.from, cmd.helpMessage, info.whispered);
             }
         } else {
-            if (cmd instanceof CommandMap) this.helpRec(from, getSubArray(command, 1), cmd);
-            else this.chat(from, cmd.help);
+            if (cmd instanceof CommandMap) this.helpRec(info, getSubArray(command, 1), cmd);
+            else this.chat(info.from, cmd.helpMessage, info.whispered);
         }
     }
 }
@@ -248,6 +233,7 @@ export function esma(options: ESMAOptions): (bot: MineflayerBot, option: Minefla
         bot.esma.registerCommand("chat.say", chat.say, "Let the bot talk \n usage: say <message>");
         bot.esma.registerCommand("chat.whisper", chat.whisper, "Let the bot whisper a message \n usage: whisper <player> <message>");
         bot.esma.registerCommand("chat.count", chat.count, "Let the bot count and optionally execute a command \n usage: count <amount> [up|down] ");
-        console.log(JSON.stringify(bot.esma.commands, null, 2));
+        bot.esma.registerCommand("say", chat.say, "Let the bot talk \n usage: say <message>");
+        bot.esma.registerCommand("whisper", chat.say, "Let the bot whisper a message \n usage: whisper <player> <message>");
     }
 }

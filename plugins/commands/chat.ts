@@ -1,17 +1,18 @@
 import {ESMABot} from "../../classes/ESMABot";
 import {joinArrayFrom} from "../util";
+import {CommandInfo} from "../../classes/CommandFunc";
 import Timer = NodeJS.Timer;
 
-function countDown(bot: ESMABot, from: string, amount: number, command: string): void {
+function countDown(bot: ESMABot, info: CommandInfo, amount: number, command: string): void {
     let target = 0;
     let timer: Timer;
 
     function count() {
         if (amount === target) {
             clearInterval(timer);
-            bot.esma.interpCommandString(from, command);
+            bot.esma.interpCommandString(info.from, command);
         } else {
-            bot.esma.chat(from, amount.toString());
+            bot.esma.chat(info.from, amount.toString(), info.whispered);
             amount--;
         }
     }
@@ -19,16 +20,16 @@ function countDown(bot: ESMABot, from: string, amount: number, command: string):
     timer = setInterval(count, 1000);
 }
 
-function countUp(bot: ESMABot, from: string, target: number, command: string): void {
+function countUp(bot: ESMABot, info: CommandInfo, target: number, command: string): void {
     let amount = 0;
     let timer: Timer;
 
     function count() {
         if (amount === target + 1) {
             clearInterval(timer);
-            bot.esma.interpCommandString(from, command);
+            bot.esma.interpCommandString(info.from, command);
         } else {
-            bot.esma.chat(from, amount.toString());
+            bot.esma.chat(info.from, amount.toString(), info.whispered);
             amount++;
         }
     }
@@ -36,26 +37,26 @@ function countUp(bot: ESMABot, from: string, target: number, command: string): v
     timer = setInterval(count, 1000);
 }
 
-export function count(bot: ESMABot, from: string, _amount: string, _direction: string): string {
+export function count(bot: ESMABot, info: CommandInfo, _amount: string, _direction: string): string {
     let amount = parseInt(_amount);
     let command = joinArrayFrom(arguments, _direction === "up" || _direction === "down" ? 4 : 3);
     if (!command) command = "say GO!";
 
     if (isNaN(amount)) return 'usage: count <amount : number> ["up" | "down"] [command]';
 
-    if (_direction && _direction === "up") countUp(bot, from, amount, command);
-    countDown(bot, from, amount, command);
+    if (_direction && _direction === "up") countUp(bot, info, amount, command);
+    countDown(bot, info, amount, command);
 }
 
-export function whisper(bot: ESMABot, from: string, to: string, message: string): string {
+export function whisper(bot: ESMABot, info: CommandInfo, to: string, message: string): string {
     if (!to || !message) {
         return;
     }
     bot.whisper(to, message);
 }
 
-export function say(bot: ESMABot, from: string, message: string): string {
+export function say(bot: ESMABot, info: CommandInfo, message: string): string {
     if (!message) return;
-    bot.esma.chat(from, message);
+    bot.esma.chat(info.from, message, info.whispered);
     return;
 }
