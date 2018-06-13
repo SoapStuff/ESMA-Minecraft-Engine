@@ -23,7 +23,7 @@ export declare class Vec3 {
 
     min(other: Vec3): Vec3;
 
-    scaled(other: Vec3): Vec3;
+    scaled(scalar: number): Vec3;
 
     modulus(other: Vec3): Vec3;
 

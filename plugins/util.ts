@@ -1,3 +1,5 @@
+import {MineflayerBot} from "../mineflayer";
+
 export function joinArrayFrom(array: IArguments | string[], index: number): string {
     let args = [];
 
@@ -18,3 +20,20 @@ export function getSubArray(array: IArguments | string[], from: number): string[
     }
     return result;
 }
+
+export function requireInterface(bot: MineflayerBot, object: any) {
+    (function requirePlugins(actual, expected) {
+        for (let key in expected) {
+            if (!expected.hasOwnProperty(key)) continue;
+            let val = expected[key];
+            if (!actual[key]) {
+                throw new Error(`Attribute not present expected: ` +
+                    `${JSON.stringify(expected)} but was: ${JSON.stringify(actual)}`);
+            }
+            if (typeof val === "object") {
+                requirePlugins(actual[key], expected[key]);
+            }
+        }
+    })(bot, object);
+}
+

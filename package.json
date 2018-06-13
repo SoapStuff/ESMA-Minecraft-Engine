@@ -9,8 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "minecraft-data": "^2.26.0",
     "minecraft-protocol": "^1.5.3",
     "mineflayer": "^2.7.2",
+    "mineflayer-blockfinder": "0.0.7",
     "mineflayer-navigate": "0.0.10",
     "mineflayer-scaffold": "0.0.5",
     "vec3": "^0.1.3"

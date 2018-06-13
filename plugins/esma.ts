@@ -130,13 +130,23 @@ export class ESMA {
      * @param {string} command
      * @param {CommandFunc} func
      * @param {string} helpMessage
+     */
+    registerCommand(command: string, func: CommandFunc, helpMessage: string) {
+        this.registerCommandTree(command, func, helpMessage)
+    }
+
+    /**
+     * Adds a new command to esma.
+     * @param {string} command
+     * @param {CommandFunc} func
+     * @param {string} helpMessage
      * @param {CommandMap} [commands] the current position in the command tree.
      */
-    registerCommand(command: string, func: CommandFunc, helpMessage: string, commands: CommandMap = this.commands) {
+    private registerCommandTree(command: string, func: CommandFunc, helpMessage: string, commands: CommandMap = this.commands) {
         let cmds = command.split(".");
         if (cmds.length > 1) {
             if (!commands[cmds[0]]) commands[cmds[0]] = new CommandMap();
-            this.registerCommand(joinArrayFrom(cmds, 1), func, helpMessage, <CommandMap> commands[cmds[0]]);
+            this.registerCommandTree(joinArrayFrom(cmds, 1), func, helpMessage, <CommandMap> commands[cmds[0]]);
             return;
         }
         if (!commands[command]) {

@@ -129,7 +129,7 @@ declare class MineflayerBot extends EventEmitter {
     scoreboards: any;
     controlState: any;
 
-
+    /* === METHODS ===*/
     end(): void
 
     quit(reason): void
@@ -174,7 +174,7 @@ declare class MineflayerBot extends EventEmitter {
 
     digTime(block): void
 
-    placeBlock(referenceBlock, faceVector, cb): void
+    placeBlock(referenceBlock, faceVector, cb?): void
 
     activateBlock(block, callback?): void
 
@@ -233,6 +233,20 @@ declare class MineflayerBot extends EventEmitter {
 
     updateHeldItem(): void
 
+    /* === FUNCTIONS ===*/
+    blockAt(point : Vec3)
+
+    canSeeBlock(block): boolean;
+
+    findBlock(options)
+
+    canDigBlock(block): boolean;
+
+    recipesFor(itemType, metadata, minResultCount, craftingTable)
+
+    recipesAll(itemType, metadata, craftingTable)
+
+    /* === EVENTS === */
     on(event: "chat", callback: (username: string, message: string, translate, jsonMsg, matches) => void);
     on(event: "whisper", callback: (username: string, message: string, translate, jsonMsg, matches) => void)
     on(event: "actionBar", callback: (jsonMsg) => void)
