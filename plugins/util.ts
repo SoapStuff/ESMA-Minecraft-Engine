@@ -10,3 +10,11 @@ export function joinArrayFrom(array: IArguments | string[], index: number): stri
     }
     return null;
 }
+
+export function getSubArray(array: IArguments | string[], from: number): string[] {
+    let result: string[] = [];
+    for (let i = from; i < array.length; i++) {
+        result.push(array[i]);
+    }
+    return result;
+}

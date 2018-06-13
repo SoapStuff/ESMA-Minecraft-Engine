@@ -1,4 +1,5 @@
 import * as read from "readline";
+import {ReadLine} from "readline";
 import {esma} from "./plugins/esma";
 import {createBot, MineflayerBotOptions} from "mineflayer";
 import welcome from "./plugins/welcome";
@@ -6,11 +7,12 @@ import {ESMABot} from "./classes/ESMABot";
 import {stripmine} from "./plugins/stripminer";
 
 let bot: ESMABot;
+let rl: ReadLine;
 
 export function init(options: MineflayerBotOptions, useTerminal: boolean = false) {
     if (useTerminal) {
-        let rl = read.createInterface({input: process.stdin, output: process.stdout,});
-        rl.on('line', (line: string) => bot.esma.doCommand(null, line));
+        rl = read.createInterface({input: process.stdin, output: process.stdout,});
+        rl.on('line', (line: string) => bot.esma.interpCommandString(null, line));
     }
     bot = createBot(options);
 }
@@ -29,7 +31,7 @@ if (process.argv.indexOf("--load-ESMA-defaults")) {
         host: 'localhost',  // optional
         port: 25565,        // optional
         username: "ESMA", // email and password are required only for
-    });
+    }, true);
     loadPlugins();
     loadCommands(true, ["EternalSoap"]);
 }

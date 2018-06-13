@@ -9,7 +9,7 @@ function countDown(bot: ESMABot, from: string, amount: number, command: string):
     function count() {
         if (amount === target) {
             clearInterval(timer);
-            bot.esma.doCommand(from, command);
+            bot.esma.interpCommandString(from, command);
         } else {
             bot.esma.chat(from, amount.toString());
             amount--;
@@ -26,7 +26,7 @@ function countUp(bot: ESMABot, from: string, target: number, command: string): v
     function count() {
         if (amount === target + 1) {
             clearInterval(timer);
-            bot.esma.doCommand(from, command);
+            bot.esma.interpCommandString(from, command);
         } else {
             bot.esma.chat(from, amount.toString());
             amount++;
