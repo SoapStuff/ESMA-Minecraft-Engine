@@ -31,6 +31,16 @@ export class CommandMap {
     [index: string]: CommandItem | CommandMap
 }
 
+export var esmastub = {
+    commands: true,
+    logging: true,
+    owners: true,
+    mineflayer_bot: true,
+    interpCommandString: true,
+    registerCommand: true,
+    chat: true,
+    onChat: true,
+};
 
 /**
  * The ESMA plugin for handling commands.

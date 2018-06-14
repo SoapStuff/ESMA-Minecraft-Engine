@@ -4,9 +4,10 @@ import {MineflayerBot} from "../mineflayer";
 export interface ESMABot extends MineflayerBot {
     welcome?: any;
     esma?: ESMA;
-    mine?: {
-        strip: (direction: string, distance: number, func: Function) => void,
-        stop: (f: Function) => void
+    esma_miner?: {
+        strip: (direction: string, distance: number, size?: number) => void,
+        tunnel: (direction: string, distance: number, size?: number) => void,
+        stop: () => void
     };
     scaffold?: any
     heldItem?: any;

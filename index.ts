@@ -6,6 +6,8 @@ import {createBot, MineflayerBot, MineflayerBotOptions} from "mineflayer";
 import welcome from "./plugins/welcome";
 import {ESMABot} from "./classes/ESMABot";
 import * as vec3 from "vec3";
+import {miner} from "./plugins/miner";
+import * as minerCommand from "./plugins/commands/miner";
 
 let bot: ESMABot;
 let rl: ReadLine;
@@ -28,6 +30,7 @@ export function initESMA(options: MineflayerBotOptions, useTerminal: boolean = f
 export function loadPlugins(bot: MineflayerBot, logging: boolean, owners: string[]) {
     bot.loadPlugin(esma({logging: true, owners: owners}));
     bot.loadPlugin(welcome);
+    bot.loadPlugin(miner);
 }
 
 /**
@@ -36,7 +39,9 @@ export function loadPlugins(bot: MineflayerBot, logging: boolean, owners: string
  */
 export function loadCommands(bot: ESMABot) {
     if (!bot.esma) throw new Error("ESMA Was not yet initialized!");
-
+    bot.esma.registerCommand("mine.strip", minerCommand.strip, "TODO");
+    bot.esma.registerCommand("mine.tunnel", minerCommand.tunnel, "TODO");
+    bot.esma.registerCommand("mine.stop", minerCommand.stop, "TODO");
 }
 
 if (process.argv.indexOf("--load-ESMA-defaults")) {

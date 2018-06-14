@@ -21,6 +21,15 @@ export function getSubArray(array: IArguments | string[], from: number): string[
     return result;
 }
 
+export function requireInterfaceSafe(bot: MineflayerBot, object: any): boolean {
+    try {
+        requireInterface(bot, object);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 export function requireInterface(bot: MineflayerBot, object: any) {
     (function requirePlugins(actual, expected) {
         for (let key in expected) {
