@@ -1,4 +1,5 @@
 import * as chat from "./commands/chat";
+import * as connect from "./commands/connection";
 
 import {MineflayerBot, MineflayerBotOptions} from "mineflayer";
 import {ESMABot} from "../classes/ESMABot";
@@ -6,7 +7,7 @@ import {ESMAOptions} from "../classes/ESMAOptions";
 import {CommandFunc, CommandInfo} from "../classes/CommandFunc";
 import {getSubArray, joinArrayFrom} from "./util";
 
-export class CommandItem {
+class CommandItem {
 
     get func() {
         return this._func;
@@ -27,7 +28,7 @@ export class CommandItem {
     }
 }
 
-export class CommandMap {
+class CommandMap {
     [index: string]: CommandItem | CommandMap
 }
 
@@ -250,10 +251,12 @@ export function esma(options: ESMAOptions): (bot: MineflayerBot, option: Minefla
         bot.esma = new ESMA(bot, options);
         bot.on('chat', (username: string, message: string) => bot.esma.onChat(username, message, false));
         bot.on('whisper', (username: string, message: string) => bot.esma.onChat(username, message, true));
+        //These commands are always loaded.
         bot.esma.registerCommand("chat.say", chat.say, "Let the bot talk \n usage: say <message>");
         bot.esma.registerCommand("chat.whisper", chat.whisper, "Let the bot whisper a message \n usage: whisper <player> <message>");
         bot.esma.registerCommand("chat.count", chat.count, "Let the bot count and optionally execute a command \n usage: count <amount> [up|down] ");
         bot.esma.registerCommand("say", chat.say, "Let the bot talk \n usage: say <message>");
         bot.esma.registerCommand("whisper", chat.say, "Let the bot whisper a message \n usage: whisper <player> <message>");
+        bot.esma.registerCommand("disconnect", connect.disconnect, "Disconnects the bot from the server");
     }
 }

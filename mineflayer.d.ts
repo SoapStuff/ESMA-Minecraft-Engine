@@ -150,13 +150,15 @@ declare class MineflayerBot extends EventEmitter {
 
     wake(cb?): void
 
-    setControlState(control, state): void
+    setControlState(control: string, state: boolean): void
 
     clearControlStates(): void
 
-    lookAt(point, [force], callback?): void
+    lookAt(point : Vec3, callback?): void
 
-    look(yaw, pitch, [force], callback?): void
+    lookAt(point: Vec3, force: boolean, callback?): void
+
+    look(yaw, pitch, force, callback?): void
 
     updateSign(block, text): void
 

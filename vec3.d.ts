@@ -9,7 +9,7 @@ export declare class Vec3 {
 
     floored(): Vec3
 
-    floor: Vec3
+    floor(): Vec3
 
     offset(dx: number, dy: number, dz: number): Vec3;
 
